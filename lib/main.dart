@@ -32,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late DateTime firstDate;
   late DateTime date;
   late int currentMonth;
+  late int currentYear;
 
   final pageController = PageController();
 
@@ -40,8 +41,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: implement initState
     super.initState();
     date = DateTime.now();
-    firstDate = date.subtract(Duration(days: date.day));
+    firstDate = date.subtract(Duration(days: date.day - 1));
     currentMonth = date.month;
+    currentYear = date.year;
   }
 
   @override
@@ -79,29 +81,54 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: onMonthIncremented,
                           child: const Icon(Icons.arrow_forward_ios),
                         ),
+                        Expanded(
+                          child: SizedBox(),
+                        ),
+                        GestureDetector(
+                          onTap: onYearDecremented,
+                          child: const Icon(
+                            Icons.arrow_back_ios,
+                          ),
+                        ),
+                        Text(
+                          "$currentYear",
+                        ),
+                        GestureDetector(
+                          onTap: onYearIncremented,
+                          child: const Icon(Icons.arrow_forward_ios),
+                        ),
                       ],
                     ),
                   ),
                   SizedBox(
-                    height: size.height * .4,
                     width: size.width,
                     child: GridView.builder(
-                        itemCount: 35,
+                        itemCount: 42,
+                        shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                         ),
                         itemBuilder: (context, index) {
-                          final day = firstDate.add(Duration(days: index));
-                          return Container(
-                              alignment: Alignment.center,
-                              // margin: EdgeInsets.all(size.height * .05),
-                              color: Colors.blue,
-                              height: size.height * .4 * .4,
-                              width: size.height * .4 * .4,
-                              child: Text(
-                                "${day.day}",
-                              ));
+                          int dateIndex = index - 7;
+                          final day = firstDate.add(Duration(days: dateIndex + 1 - firstDate.weekday));
+                          if (index < 7) {
+                            return DateWidget(size: size, data: generateWeekName(index + 1), color: Colors.red.withOpacity(.5));
+                          } else {
+                            if (dateIndex + 1 < firstDate.weekday) {
+                              return DateWidget(size: size, data: "${day.day}", color: Colors.blue.withOpacity(.5));
+                            } else {
+                              if (DateTime(firstDate.year, firstDate.month + 1, 1).isAfter(day)) {
+                                return DateWidget(
+                                  size: size,
+                                  data: "${day.day}",
+                                  color: Colors.blue,
+                                );
+                              } else {
+                                return DateWidget(size: size, data: "${day.day}", color: Colors.blue.withOpacity(.5));
+                              }
+                            }
+                          }
                         }),
                   ),
                 ],
@@ -113,24 +140,64 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  onYearIncremented() {
+    setState(() {
+      currentYear++;
+      firstDate = DateTime(currentYear, currentMonth, 1);
+    });
+  }
+
+  onYearDecremented() {
+    setState(() {
+      currentYear--;
+      firstDate = DateTime(currentYear, currentMonth, 1);
+    });
+  }
+
   onMonthIncremented() => setState(() {
         if (currentMonth < 12) {
           currentMonth++;
         } else {
+          currentYear++;
           currentMonth = 1;
         }
-        firstDate = DateTime(firstDate.year, currentMonth, 1);
+        firstDate = DateTime(currentYear, currentMonth, 1);
+        print(firstDate.weekday);
       });
 
   onMonthDecremented() => setState(() {
         if (currentMonth > 1) {
-          currentMonth++;
+          currentMonth--;
         } else {
           currentMonth = 12;
+          currentYear--;
         }
-        currentMonth--;
-        firstDate = DateTime(firstDate.year, currentMonth, 1);
+
+        firstDate = DateTime(currentYear, currentMonth, 1);
+        print(firstDate.weekday);
       });
+
+  String generateWeekName(int weekIndex) {
+    switch (weekIndex) {
+      case 1:
+        return "Mon";
+      case 2:
+        return "Tue";
+      case 3:
+        return "Wed";
+      case 4:
+        return "Thu";
+      case 5:
+        return "Fri";
+      case 6:
+        return "Sat";
+      case 7:
+        return "Sun";
+
+      default:
+        return "Invalid Week";
+    }
+  }
 
   //Akash.krishnan@fullthrottlelabs.com
   String generateMonthName(int monthIndex) {
@@ -162,5 +229,31 @@ class _MyHomePageState extends State<MyHomePage> {
       default:
         return "Invalid Month";
     }
+  }
+}
+
+class DateWidget extends StatelessWidget {
+  const DateWidget({
+    Key? key,
+    required this.size,
+    required this.data,
+    required this.color,
+  }) : super(key: key);
+
+  final Size size;
+  final String data;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        alignment: Alignment.center,
+        // margin: EdgeInsets.all(size.height * .05),
+        color: color,
+        height: size.height * .4 * .4,
+        width: size.height * .4 * .4,
+        child: Text(
+          data,
+        ));
   }
 }
