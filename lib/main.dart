@@ -60,7 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ColoredBox(
-              color: Colors.grey,
+              color: Colors.grey.withOpacity(
+                .1,
+              ),
               child: Column(
                 children: [
                   SizedBox(
@@ -104,17 +106,26 @@ class _MyHomePageState extends State<MyHomePage> {
                         itemCount: 49,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
+                          // crossAxisSpacing: size.width * .01,
+                          // mainAxisSpacing: size.width * .01,
                         ),
                         itemBuilder: (context, index) {
                           int dateIndex = index - 7;
                           final day = firstDate.add(Duration(days: dateIndex + 1 - firstDate.weekday));
                           if (index < 7) {
-                            return DateWidget(size: size, data: generateWeekName(index + 1), color: Colors.red.withOpacity(.5));
+                            return DateWidget(
+                              size: size,
+                              data: generateWeekName(index + 1),
+                              color: Colors.red.withOpacity(
+                                .5,
+                              ),
+                              isDate: false,
+                            );
                           } else {
                             if (dateIndex + 1 < firstDate.weekday) {
-                              return DateWidget(size: size, data: "${day.day}", color: Colors.blue.withOpacity(.5));
+                              return DateWidget(size: size, data: "${day.day}", color: Colors.blue.withOpacity(.1));
                             } else {
                               if (DateTime(firstDate.year, firstDate.month + 1, 1).isAfter(day)) {
                                 return DateWidget(
@@ -123,7 +134,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                   color: Colors.blue,
                                 );
                               } else {
-                                return DateWidget(size: size, data: "${day.day}", color: Colors.blue.withOpacity(.5));
+                                return DateWidget(
+                                    size: size,
+                                    data: "${day.day}",
+                                    color: Colors.blue.withOpacity(
+                                      .25,
+                                    ));
                               }
                             }
                           }
@@ -236,8 +252,9 @@ class DateWidget extends StatelessWidget {
     required this.size,
     required this.data,
     required this.color,
+    this.isDate = true,
   }) : super(key: key);
-
+  final bool isDate;
   final Size size;
   final String data;
   final Color color;
@@ -246,10 +263,14 @@ class DateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         alignment: Alignment.center,
-        // margin: EdgeInsets.all(size.height * .05),
-        color: color,
-        height: size.height * .4 * .4,
-        width: size.height * .4 * .4,
+        margin: EdgeInsets.all(isDate ? size.height * .002 : 0),
+        decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(
+              isDate ? size.height * .01 : 0,
+            )),
+        height: size.height * .16,
+        width: size.height * .16,
         child: Text(
           data,
         ));
