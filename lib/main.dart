@@ -81,9 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: onMonthIncremented,
                           child: const Icon(Icons.arrow_forward_ios),
                         ),
-                        Expanded(
-                          child: SizedBox(),
-                        ),
+                        const Spacer(),
                         GestureDetector(
                           onTap: onYearDecremented,
                           child: const Icon(
@@ -103,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   SizedBox(
                     width: size.width,
                     child: GridView.builder(
-                        itemCount: 42,
+                        itemCount: 49,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
